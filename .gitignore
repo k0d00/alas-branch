@@ -18,6 +18,9 @@ dev_tools/debug_tools
 /campaign/test/
 /toolkit
 *.lock
+# uv.lock 是依赖锁文件，必须入库（启动器按 `uv sync --frozen` 同步依赖）；
+# 它会被上面的 *.lock 误伤，所以显式放行。
+!uv.lock
 config/reloadflag
 config/reloadalas
 config/webui-dependency-sync-pending
