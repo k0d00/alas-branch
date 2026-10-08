@@ -2,7 +2,7 @@
 
 The `/campaign` directory is used to place map files.
 
-To add a new event, add a new row in here, and run `python -m module.config.config_updater`. Some date in directory not equal to Aired date, because they use the map files in old events. Use `Ctrl+F` to search what you want.
+To add a new event, add a new row in here, and run `uv run -m module.config.config_updater`. Some date in directory not equal to Aired date, because they use the map files in old events. Use `Ctrl+F` to search what you want.
 
 **Aired Date** The date that the event aired for the first time.
 
@@ -11,6 +11,7 @@ To add a new event, add a new row in here, and run `python -m module.config.conf
 **Event Name** Official name in English. If an event haven't aired in EN, use the name in CN.
 
 **CN, EN, JP, TW** Event names in GUI. If an event is not aired on some servers, use `-`.
+
 
 | Aired Date | Directory                | Event Name                                   | CN                         | EN                                                 | JP                                   | TW                         |
 | :--------- | :----------------------- | :------------------------------------------- | :------------------------- | :------------------------------------------------- | :----------------------------------- | :------------------------- |
@@ -259,7 +260,7 @@ To add a new event, add a new row in here, and run `python -m module.config.conf
 | 20250703   | event 20250424 cn        | Toward Tulipa’s Seas                         | -                          | -                                                  | -                                    | 揚起鬱金之旗               |
 | 20250724   | event 20241219 cn        | Substellar Crepuscule                        | -                          | -                                                  | -                                    | 星光下的餘暉               |
 | 20250724   | event 20250724 cn        | The Alchemist and the Tower of Horizons      | 优米雅的炼金工房           | The Alchemist and the Tower of Horizons            | 錬金術士と天空邂逅の塔               | -                          |
-| 20250724   | event 20221124 cn        | The Alchemist and the Archipelago of Secrets | 复刻炼金术士与秘密遗迹群岛 | The Alchemist and the Archipelago of Secrets Rerun | 錬金術士と謎の遺跡群島（復刻）       | -                          |
+| 20250726   | event 20221124 cn        | The Alchemist and the Archipelago of Secrets | 复刻炼金术士与秘密遗迹群岛 | The Alchemist and the Archipelago of Secrets Rerun | 錬金術士と謎の遺跡群島（復刻）       | -                          |
 | 20250807   | event 20250724 cn        | The Alchemist and the Tower of Horizons      | -                          | -                                                  | -                                    | 鍊金術士與天際交會之塔     |
 | 20250807   | event 20221124 cn        | The Alchemist and the Archipelago of Secrets | -                          | -                                                  | -                                    | 復刻鍊金術士與秘密遺跡群島 |
 | 20250814   | event 20250814 cn        | Secrets of the Abyss                         | 奇渊下的秘密               | Secrets of the Abyss                               | 淵層界の秘密                         | -                          |
@@ -292,7 +293,7 @@ To add a new event, add a new row in here, and run `python -m module.config.conf
 | 20260402   | event 20260326 cn        | The Vagabond’s Recruitment Plan              | -                          | -                                                  | -                                    | 漫遊者招募計劃             |
 | 20260416   | event 20220915 cn        | Violet Tempest Blooming Lycoris              | -                          | -                                                  | -                                    | 復刻紫絳槿嵐               |
 | 20260417   | event 20260417 cn        | Vacation Lane – Beachside Brilliance         | 假日航线闪耀海滨           | Vacation Lane – Beachside Brilliance               | バケーションレーン・きらめく砂浜     | -                          |
-| 20260417   | event 20201126 cn        | Vacation Lane Rerun                          | 复刻假日航线               | Vacation Lane Rerun                                | バケーションレーン（復刻）           | -                          |
+| 20260417   | event 20201126 cn        | Vacation Lane Rerun                          | 复刻假日航线               | Vacation Lane Rerun                                | バケーションレーン（復刻）           | 復刻假日航線               |
 | 20260417   | event 20250424 cn        | Toward Tulipa’s Seas Rerun                   | 复刻扬起郁金之旗           | Toward Tulipa’s Seas Rerun                         | チュリッパの海へ（復刻）             | -                          |
 | 20260417   | event 20260417 cn        | Vacation Lane – Beachside Brilliance         | -                          | -                                                  | -                                    | 假日航線閃耀海濱           |
 | 20260417   | event 20201126 cn        | Vacation Lane Rerun                          | -                          | -                                                  | -                                    | 復刻假日航線               |
@@ -313,3 +314,10 @@ To add a new event, add a new row in here, and run `python -m module.config.conf
 | 20260908   | event 20260908 cn        | Tales of the Paranormal                      | 幽影迷城                   | Tales of the Paranormal                            | 妖異奇譚                             | -                          |
 | 20260827   | raid 20260827            | The Big Shot's Proclamation                  | -                          | -                                                  | -                                    | 大人物的預告信             |
 | 20260924   | event 20260908 cn        | Tales of the Paranormal                      | -                          | -                                                  | -                                    | 幽影迷城                   |
+| 20261008   | event 20240815 cn        | Windborne Steel Wings                        | 铁翼擎风                   | Windborne Steel Wings                              | 錬翼空翔                             | -                          |
+| 20261008   | event 20240912 cn        | Ode of Everblooming Crimson                  | 唤醒苍红之炎               | Ode of Everblooming Crimson                        | 絳染む丹華の詠歌                     | -                          |
+| 20261008   | event 20250227 cn        | Paradiso of Shackled Light                   | 樊笼内的神光               | Paradiso of Shackled Light                         | 籠檻に囚われし神光                   | -                          |
+| 20261008   | event 20250520 cn        | A Rose on the High Tower                     | 高塔上的蔷薇               | A Rose on the High Tower                           | 高い塔の薔薇                         | -                          |
+| 20261008   | event 20250814 cn        | Secrets of the Abyss                         | 奇渊下的秘密               | Secrets of the Abyss                               | 淵層界の秘密                         | -                          |
+| 20261008   | event 20250912 cn        | A Dance for Amahara Above                    | 起舞于天原之上             | A Dance for Amahara Above                          | アマハラに舞い奉れ                   | -                          |
+| 20261008   | event 20241219 cn        | Substellar Crepuscule                        | 星光下的余晖               | Substellar Crepuscule                              | 星降る夕影の残光                     | -                          |
