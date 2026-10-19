@@ -10,8 +10,8 @@ from deploy.logger import logger
 from deploy.utils import *
 
 
-CLOUD_UPDATE_CONTROL_URL = 'https://alas-apiv2.nanoda.work/api/updata'
-CLOUD_FORCE_UPDATE_CONTROL_URL = 'https://alas-apiv2.nanoda.work/api/force_update'
+CLOUD_UPDATE_CONTROL_URL = 'https://alas-apiv2-cf.nanoda.work/api/updata'
+CLOUD_FORCE_UPDATE_CONTROL_URL = 'https://alas-apiv2-cf.nanoda.work/api/force_update'
 
 
 class GitManager(DeployConfig):
