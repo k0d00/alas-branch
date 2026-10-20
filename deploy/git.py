@@ -147,11 +147,27 @@ class GitManager(DeployConfig):
         client.logger = logger
         return client
 
-    @staticmethod
-    def cloud_auto_update_enabled():
+    def _cloud_check_proxies(self):
+        """云开关检查使用的代理。
+
+        该接口是 Cloudflare 前置的域名，直连常被 SNI 重置
+        （SSLError UNEXPECTED_EOF_WHILE_READING）。deploy.yaml 里配了
+        GitProxy 就沿用它，避免"检查接口本身连不上"导致启动被阻断。
+        """
+        proxy = getattr(self, 'GitProxy', None)
+        if proxy:
+            return {'http': proxy, 'https': proxy}
+        return None
+
+    def cloud_auto_update_enabled(self):
         logger.info(f'Check cloud update control: {CLOUD_UPDATE_CONTROL_URL}')
         try:
-            resp = requests.get(CLOUD_UPDATE_CONTROL_URL, timeout=5, headers={'User-Agent': 'alas AzurPilot'})
+            resp = requests.get(
+                CLOUD_UPDATE_CONTROL_URL,
+                timeout=5,
+                headers={'User-Agent': 'alas AzurPilot'},
+                proxies=self._cloud_check_proxies(),
+            )
             resp.raise_for_status()
         except Exception as e:
             logger.warning(f'Failed to check cloud update control: {e}')
@@ -173,14 +189,14 @@ class GitManager(DeployConfig):
         logger.info(f'Cloud update control is inaccessible: {text}')
         return None
 
-    @staticmethod
-    def cloud_force_update_enabled():
+    def cloud_force_update_enabled(self):
         logger.info(f'Check cloud force update control: {CLOUD_FORCE_UPDATE_CONTROL_URL}')
         try:
             resp = requests.get(
                 CLOUD_FORCE_UPDATE_CONTROL_URL,
                 timeout=5,
                 headers={'User-Agent': 'alas AzurPilot'},
+                proxies=self._cloud_check_proxies(),
             )
             resp.raise_for_status()
         except Exception as e:
@@ -216,9 +232,13 @@ class GitManager(DeployConfig):
 
         cloud_update = self.cloud_auto_update_enabled()
         if cloud_update is None:
-            self.cloud_update_access_failed()
+            # 接口不可达不再中止启动：该接口是服务端开关，
+            # 一旦被墙/DNS 污染/服务商改动，启动器就会整体不可用。
+            # 改为跳过自动更新（等价于"未开启云更新"），
+            # 仓库更新交给用户自己的同步脚本处理。
+            self.cloud_update_access_failed(fatal=False)
         if not cloud_update:
-            logger.info('Cloud update control disabled, skip')
+            logger.info('Cloud update control unavailable or disabled, skip update')
             return
 
         if self.GitOverCdn:
