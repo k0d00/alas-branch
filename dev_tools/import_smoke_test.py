@@ -33,6 +33,15 @@ PYTHON = Path(sys.executable)
 DEFAULT_TIMEOUT = 30  # 单模块导入超时（秒）
 DEFAULT_WORKERS = 8
 
+# 结论行里带有 ✅ / ❌，Windows 默认 GBK 控制台无法编码会抛 UnicodeEncodeError，
+# 导致还没写汇总文件就崩溃（CI 是 UTF-8 不受影响，但本地会）。统一改用 UTF-8。
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
 # 扫描范围：module/ 与 deploy/ 为运行时代码；campaign/ 需显式开启。
 SCAN_DIRS = ("module", "deploy")
 CAMPAIGN_DIR = "campaign"
@@ -97,12 +106,24 @@ def platform_skip(module: str) -> bool:
 def import_in_subprocess(module: str, timeout: int) -> tuple[bool, str]:
     """在独立子进程中导入模块，返回 (是否成功, 错误摘要)。"""
     code = f"import {module}"
-    env = {**os.environ, "AZURPILOT_NTP_DISABLE": "1"}
+    # AZURPILOT_NO_FILE_LOG: 子进程的 sys.argv[0] 都是 "-c"，
+    # 若各自写文件日志会争用同一个 log/-c.txt，doRollover 里 exists/rename
+    # 存在竞态，偶发 FileNotFoundError 造成误报失败。这里统一关闭文件日志。
+    env = {
+        **os.environ,
+        "AZURPILOT_NTP_DISABLE": "1",
+        "AZURPILOT_NO_FILE_LOG": "1",
+        # 统一子进程输出编码：Windows 默认按 GBK 输出，父进程若按 UTF-8/GBK
+        # 解码不一致会抛 UnicodeDecodeError，把正常结果误判成崩溃。
+        "PYTHONIOENCODING": "utf-8",
+    }
     try:
         proc = subprocess.run(
             [str(PYTHON), "-c", code],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             env=env,
             cwd=REPO_ROOT,

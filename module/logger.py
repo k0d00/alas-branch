@@ -418,6 +418,13 @@ def _set_file_logger(name=pyw_name):
 
 
 def set_file_logger(name=pyw_name):
+    # 允许显式关闭文件日志。用于大量短生命周期的并行子进程场景
+    # （例如 dev_tools.import_smoke_test 同时起 8 个 `python -c`），
+    # 这些进程的 sys.argv[0] 都是 "-c"，会争用同一个 log/-c.txt：
+    # RichTimedRotatingHandler.doRollover() 中 exists() 与 rename() 之间存在
+    # 竞态，别的进程先删掉文件就会抛 FileNotFoundError 导致导入失败。
+    if os.environ.get("AZURPILOT_NO_FILE_LOG") == "1":
+        return
     if "_" in name:
         name = name.split("_", 1)[0]
     # Windows 下有 "SyncManager-N:N"、"MainProcess"、"Process-N"、"gui" 四种进程
