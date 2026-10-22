@@ -284,6 +284,7 @@ class CampaignRun(CampaignEvent, ShopStatus):
             'event_20251023_cn',
             'event_20260326_cn',
             'event_20260625_cn',
+            'event_20261022_cn',
             'war_archives_20230525_cn',
             'war_archives_20231026_cn',
             'war_archives_20240725_cn',
@@ -323,14 +324,23 @@ class CampaignRun(CampaignEvent, ShopStatus):
             'event_20251023_cn',
             'event_20260326_cn',
             'event_20260625_cn',
+            'event_20261022_cn',
             'war_archives_20230525_cn',
             'war_archives_20231026_cn',
             'war_archives_20240725_cn',
         ]:
             name = convert.get(name, name)
         else:
+            # 反向映射仅用于极老的活动（地图文件仍是 a1/b2 这类 ABCD 命名）。
+            # 必须确认目标文件真实存在才改写：否则像 event_20261022_cn 这种
+            # 原生使用 T 命名的新活动，输入 t5 会被改写成并不存在的 b2，
+            # 随后报 Map file not found。上游已删除这段逻辑，这里做保守处理。
             reverse = {v: k for k, v in convert.items()}
-            name = reverse.get(name, name)
+            alternative = reverse.get(name, name)
+            if alternative != name and os.path.exists(
+                    f'./campaign/{folder}/{alternative}.py'):
+                logger.info(f'[战役-运行] 关卡名 {name} 按旧命名改写为 {alternative}')
+                name = alternative
         # 炼金术士与秘密群岛
         # 处理拼写错误
         if folder == 'event_20221124_cn':
