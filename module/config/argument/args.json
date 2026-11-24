@@ -1150,6 +1150,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -1581,6 +1585,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -2011,6 +2019,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -2568,6 +2580,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -3102,6 +3118,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -3624,6 +3644,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -4070,6 +4094,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -4518,6 +4546,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -4963,6 +4995,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -5432,6 +5468,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -5711,6 +5751,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -6049,6 +6093,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -6345,6 +6393,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -6647,6 +6699,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -7362,6 +7418,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -7865,6 +7925,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -8328,6 +8392,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -8793,6 +8861,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -9257,6 +9329,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -9710,6 +9786,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
@@ -10175,6 +10255,10 @@
         "type": "input",
         "value": 1000
       },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
+      },
       "CoinLimit": {
         "type": "input",
         "value": 0
@@ -10468,6 +10552,10 @@
       "OilLimit": {
         "type": "input",
         "value": 1000
+      },
+      "OilLimitHardFloor": {
+        "type": "input",
+        "value": 500
       },
       "CoinLimit": {
         "type": "input",
