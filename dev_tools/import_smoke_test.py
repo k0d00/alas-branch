@@ -30,7 +30,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PYTHON = Path(sys.executable)
-DEFAULT_TIMEOUT = 30  # 单模块导入超时（秒）
+# 单模块导入超时（秒）。
+# 30s 在共享 runner 上会被慢速抖动误判：auto_equip / awaken 等模块导入
+# 重依赖（cv2、onnx 模型等）偶尔超过 30s，导致 CI 偶发红色。
+# 放宽到 60s，配合逐模块独立进程，实际耗时只会在真慢时增加。
+DEFAULT_TIMEOUT = 60
 DEFAULT_WORKERS = 8
 
 # 结论行里带有 ✅ / ❌，Windows 默认 GBK 控制台无法编码会抛 UnicodeEncodeError，
