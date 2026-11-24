@@ -37,6 +37,8 @@ class LogRes:
 
     def __setattr__(self, key, value):
         if key in self.groups:
+            if self.__dict__.get('_observation_enabled', True):
+                self._observe(key, value)
             _key_group = f'Dashboard.{key}'
             _mod = False
             original = deep_get(self.config.data, keys=_key_group)
@@ -92,6 +94,53 @@ class LogRes:
         else:
             logger.info('[日志资源] 仪表盘中无此资源')
             super().__setattr__(name=key, value=value)
+
+    def record(self, name, value, *, observed=True, source=None):
+        """记录一次资源读数。
+
+        与直接属性赋值（``LogRes(config).Oil = 12000``）等价地更新
+        ``Dashboard.<name>``，同时携带“本次读数是否可信”的标记：
+
+        - ``observed=True``：正常读数，允许写入程序观察记录。
+        - ``observed=False``：缓存回退或识别失败的读数，只保留数值，
+          不写入观察记录，避免污染后续统计。
+
+        Args:
+            name (str): Dashboard 中的资源名，如 ``'Pt'``。
+            value (int | dict): 资源数值，或包含 Value/Total/Limit 的字典。
+            observed (bool): 本次读数是否可信，默认 True。
+            source (str, optional): 读数来源，留空时按当前任务推断。
+        """
+        self.__dict__['_observation_enabled'] = observed
+        self.__dict__['_observation_source'] = source
+        try:
+            setattr(self, name, value)
+        finally:
+            self.__dict__.pop('_observation_enabled', None)
+            self.__dict__.pop('_observation_source', None)
+
+    def _observe(self, name, value):
+        """把可信读数写入程序观察记录。
+
+        本仓库的调度器未提供观察记录库（``module.scheduler.store``）时静默跳过，
+        因此该钩子在现有环境中等价于空操作，不影响 Dashboard 更新。
+        """
+        try:
+            from module.scheduler.store import ProgramStore
+        except ImportError:
+            return
+        from pathlib import Path
+        from module.config.utils import filepath_config
+        instance = getattr(self.config, 'config_name', None)
+        if not isinstance(instance, str) or not Path(filepath_config(instance)).exists():
+            return
+        current = value.get('Value') if isinstance(value, dict) else value
+        if type(current) not in (int, float) or current < 0 or (current == 0 and '_observation_enabled' not in self.__dict__):
+            return
+        from module.config.time_source import now
+        task = getattr(getattr(self.config, 'task', None), 'command', None)
+        source = self.__dict__.get('_observation_source') or task or 'task_observation'
+        ProgramStore().observe(instance, name, value, now().isoformat(sep=' '), source)
 
     def _record_all_resource_snapshot(self, overrides=None):
         """读取当前所有 Dashboard 资源值并记录快照"""

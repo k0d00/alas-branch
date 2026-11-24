@@ -23,6 +23,7 @@
 import numpy as np
 
 from module.base.timer import Timer
+from module.base.decorator import cached_property
 from module.base.utils import color_similar, get_color, lower_template_match_similarity
 from module.base.api_client import ApiClient
 from module.combat.assets import *
@@ -30,6 +31,7 @@ from module.combat.combat_auto import CombatAuto
 from module.combat.combat_manual import CombatManual
 from module.combat.hp_balancer import HPBalancer
 from module.combat.level import Level
+from module.combat.result import CombatResult
 from module.combat.submarine import SubmarineCall
 from module.combat_ui.assets import *
 from module.handler.auto_search import AutoSearchHandler
@@ -52,9 +54,54 @@ class Combat(Level, HPBalancer, Retirement, SubmarineCall, CombatAuto, CombatMan
     Attributes:
         _automation_set_timer (Timer): 自动化模式设置的防抖计时器。
         battle_status_click_interval (int): 战斗状态点击间隔。
+        combat_shipwreck_emotion (bool): 是否由结算记账直接扣减沉船心情。
+            本仓库的沉船心情由自动搜索流程扣减，这里关闭以免重复扣减。
     """
     _automation_set_timer = Timer(1)
     battle_status_click_interval = 0
+    combat_shipwreck_emotion = False
+
+    @cached_property
+    def combat_result(self):
+        """单场战斗的结算上下文，按实例创建。"""
+        return CombatResult()
+
+    def combat_result_reset(self, emotion_reduce=False, fleet_index=1):
+        """在战斗入口重置结算上下文。
+
+        Args:
+            emotion_reduce (bool): 本场是否允许记录沉船心情扣减。
+            fleet_index (int): 本场使用的舰队编号。
+        """
+        self.combat_result = CombatResult(fleet_index=fleet_index, emotion_reduce=emotion_reduce)
+
+    def combat_result_record(self, rank=None, defeated=False, fleet_unavailable=False):
+        """记录识别到的结算结果，同一场非 S 或战败最多额外扣减一次。
+
+        Args:
+            rank (str, optional): 识别到的评价等级，S/A/B/C/D。
+            defeated (bool): 是否确认战败。
+            fleet_unavailable (bool): 舰队是否已无法成型。
+        """
+        result = self.combat_result
+        if rank is not None:
+            result.rank = rank
+        if fleet_unavailable and not result.fleet_unavailable:
+            logger.info('[战斗-结算] 战败舰队已无法成型，等待游戏自动换队')
+        result.fleet_unavailable |= fleet_unavailable
+        defeated |= fleet_unavailable
+        first_defeat = defeated and not result.defeated
+        result.defeated |= defeated
+        if result.emotion_reduce and self.combat_shipwreck_emotion \
+                and result.needs_shipwreck_penalty and not result.shipwreck_reduced:
+            self.emotion.reduce(result.fleet_index, shipwreck=True)
+            result.shipwreck_reduced = True
+        if first_defeat:
+            logger.warning('[战斗-结算] 已确认战败结算')
+            self.combat_defeat_recovery()
+
+    def combat_defeat_recovery(self):
+        """任务按自身流程恢复；普通战斗只记录结果并推进结算。"""
 
     def combat_appear(self):
         """
@@ -490,6 +537,55 @@ class Combat(Level, HPBalancer, Retirement, SubmarineCall, CombatAuto, CombatMan
             if self.handle_battle_status(drop=drop) \
                     or self.handle_get_items(drop=drop):
                 break
+
+    def handle_combat_defeat(self, drop=None):
+        """识别并关闭战败（D 评价）弹窗。
+
+        只有真正的沉船/战败才会出现 ``OPTS_INFO_D``；S/A/B/C 评价过渡帧
+        不会匹配，因此可以安全地在结算循环里反复调用。
+
+        Args:
+            drop: 掉落记录对象，用于截图统计。
+
+        Returns:
+            bool: 已识别并点击战败弹窗时返回 True。
+
+        Pages:
+            in: OPTS_INFO_D
+            out: 后续结算画面或地图
+        """
+        if not self.appear(OPTS_INFO_D, offset=(30, 30)):
+            return False
+        if self.appear(OPTS_INFO_D, offset=(30, 30), interval=2):
+            self.combat_result_record(defeated=True)
+            if drop:
+                drop.handle_add(self)
+            self.device.click(OPTS_INFO_D)
+            return True
+        return False
+
+    def combat_result_observe(self):
+        """只观察当前结算画面上的评价，不点击任何按钮。
+
+        本仓库没有上游的结算记账（CombatResult）机制，沉船心情扣减仍由
+        自律战斗流程处理；这里仅提供画面识别，供调用方判断是否已进入结算。
+
+        Returns:
+            bool: 画面属于结算阶段时返回 True。
+        """
+        if self.appear(OPTS_INFO_D, offset=(30, 30)):
+            self.combat_result_record(defeated=True)
+            return True
+        for rank, battle, exp in (
+                ('S', BATTLE_STATUS_S, EXP_INFO_S),
+                ('A', BATTLE_STATUS_A, EXP_INFO_A),
+                ('B', BATTLE_STATUS_B, EXP_INFO_B)):
+            if self.appear(battle) or self.appear(exp):
+                self.combat_result_record(rank=rank)
+                return True
+        # C/D 字母的过渡帧只当作进入结算的信号，真正的战败由 OPTS_INFO_D 确认。
+        return any(self.appear(button) for button in (
+            BATTLE_STATUS_C, BATTLE_STATUS_D, EXP_INFO_C, EXP_INFO_D))
 
     def handle_battle_status(self, drop=None):
         """

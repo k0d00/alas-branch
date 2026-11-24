@@ -236,17 +236,28 @@ class AutoSearchCombat(MapOperation, Combat, CampaignStatus):
             if self.is_in_auto_search_menu() or self._handle_auto_search_menu_missing():
                 raise CampaignEnd
 
-    def auto_search_combat_execute(self, emotion_reduce, fleet_index, battle=None, expected_end=None):
+    def auto_search_combat_execute(self, emotion_reduce, fleet_index, battle=None, expected_end=None,
+                                   shipwreck_reduce=None):
         """
         Args:
-            emotion_reduce (bool):
-            fleet_index (int):
-            expected_end (callable):
+            emotion_reduce (bool): 是否扣减本次进入战斗的基础心情。
+            fleet_index (int): 当前战斗使用的舰队编号（1 或 2）。
+            battle (tuple[int, int], optional): 当前战斗场次信息 (当前战斗计数, 总战斗计数)。
+            expected_end (callable): 外部传入的战斗结束判定回调。
+            shipwreck_reduce (bool, optional): 结算阶段是否记录沉船（非 S 评价/战败）
+                的额外心情扣减。默认跟随 ``emotion_reduce``；联动多队模式只在首场扣
+                基础心情，但每场战斗仍需观察结算，因此会单独传 True。
 
         Pages:
             in: is_combat_loading()
             out: combat status
         """
+        shipwreck_reduce = emotion_reduce if shipwreck_reduce is None else shipwreck_reduce
+        self._auto_search_emotion_reduce = shipwreck_reduce
+        self._auto_search_fleet_index = fleet_index
+        self._shipwreck_emotion_reduced = False
+        self._withdraw = False
+        self.combat_result_reset(emotion_reduce=shipwreck_reduce, fleet_index=fleet_index)
         logger.info('自动搜索战斗加载中')
         self.device.stuck_record_clear()
         self.device.click_record_clear()
@@ -332,8 +343,10 @@ class AutoSearchCombat(MapOperation, Combat, CampaignStatus):
                 continue
             if self.handle_get_ship():
                 continue
+            # 记录结算画面上的评价；联动 SP/EX 需要用它判断是否以 S 评价通过
+            self.combat_result_observe()
             if self.appear_then_click(OPTS_INFO_D, offset=(30, 30), interval=2):
-                if emotion_reduce and not self._shipwreck_emotion_reduced:
+                if shipwreck_reduce and not self._shipwreck_emotion_reduced:
                     self.emotion.reduce(fleet_index, shipwreck=True)
                     self._shipwreck_emotion_reduced = True
                 self._withdraw = True
@@ -357,7 +370,7 @@ class AutoSearchCombat(MapOperation, Combat, CampaignStatus):
             # 设置_shipwreck_emotion_reduced防止C评价后续出现OPTS_INFO_D时重复扣减
             if self.appear(BATTLE_STATUS_A) or self.appear(BATTLE_STATUS_B) or self.appear(BATTLE_STATUS_C) \
                     or self.appear(EXP_INFO_A) or self.appear(EXP_INFO_B) or self.appear(EXP_INFO_C):
-                if emotion_reduce:
+                if shipwreck_reduce:
                     self.emotion.reduce(fleet_index, shipwreck=True)
                     self._shipwreck_emotion_reduced = True
                 break
