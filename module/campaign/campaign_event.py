@@ -26,7 +26,13 @@ from module.config.utils import DEFAULT_TIME
 from module.logger import logger
 from module.notify import handle_notify
 from module.ui.assets import CAMPAIGN_MENU_NO_EVENT
-from module.ui.page import page_campaign_menu, page_coalition, page_event, page_sp
+from module.ui.page import (
+    get_coalition_page,
+    page_campaign_menu,
+    page_coalition,
+    page_event,
+    page_sp,
+)
 from module.war_archives.assets import WAR_ARCHIVES_CAMPAIGN_CHECK
 
 
@@ -256,15 +262,17 @@ class CampaignEvent(CampaignStatus):
             return True
 
     def ui_goto_coalition(self):
-        # 已在 page_coalition，跳过活动检查。
-        if self.ui_get_current_page() == page_coalition:
+        # 不同共斗活动的界面不同，按当前活动选择对应页面
+        page = get_coalition_page(self.config.Campaign_Event)
+        # 已在共斗页面，跳过活动检查。
+        if self.ui_get_current_page() == page:
             logger.info('[活动战役] 已在联动页面')
             return True
         else:
             self.ui_goto(page_campaign_menu)
             # 检查活动是否可用
             if self.is_event_entrance_available():
-                self.ui_goto(page_coalition)
+                self.ui_goto(page)
                 return True
 
     def disable_raid_on_event(self):
